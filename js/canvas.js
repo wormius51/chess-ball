@@ -13,6 +13,10 @@ let darkSquareColor = "rgb(37, 10, 122)";
 let moveOptionColor = "#10fd30d3";
 let ballMoveColor = "grey";
 
+let draggedPiece = undefined;
+let mouseX = 0;
+let mouseY = 0;
+
 function setBoardCanvasSize () {
     canvas.height = boardHeight * squareEdgeLengh;
     canvas.width = boardWidth * squareEdgeLengh;
@@ -65,7 +69,8 @@ function drawPiece (piece, file, rank, size) {
 function drawPieces () {
     for (let file = 0; file < boardWidth; file++)
         for (let rank = 0; rank < boardHeight; rank++)
-            drawPiece(position[rank][file], file, rank);
+            if (position[rank] && position[rank][file] != draggedPiece)
+                drawPiece(position[rank][file], file, rank);
 }
 
 function drawMoveOption (file, rank, color) {
@@ -87,7 +92,8 @@ function drawMoveOptions () {
     possibleMoves.forEach(move => {
         if (move.ballMoves) {
             move.ballMoves.forEach(ballMove => {
-                drawMoveOption(ballMove.bx, ballMove.by, ballMoveColor);
+                if (!(ballMove.bx == ballMove.sx && ballMove.by == ballMove.sy))
+                    drawMoveOption(ballMove.bx, ballMove.by, ballMoveColor);
             });
         }
         if (move.promotion) {
@@ -102,9 +108,15 @@ function drawMoveOptions () {
     });
 }
 
+function drawDraggedPiece () {
+    drawPiece(draggedPiece, mouseX, mouseY);
+}
+
 function drawBoard () {
     setBoardCanvasSize();
     drawSquares();
     drawPieces();
     drawMoveOptions();
+    if (draggedPiece)
+        drawDraggedPiece();
 }

@@ -3,18 +3,35 @@ window.addEventListener('load', () => {
     drawBoard();
 });
 
-canvas.addEventListener('click', event => {
-    selectCanvas(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
+canvas.addEventListener('click', selectCanvas);
+canvas.addEventListener('mousedown', event => {
+    selectCanvas(event, true);
 });
+canvas.addEventListener('mousemove', setMouseXY);
 
 var possibleMoves = [];
 
-function selectCanvas (x, y) {
+function setMouseXY (event) {
+    let x = event.clientX - canvas.offsetLeft;
+    let y = event.clientY - canvas.offsetTop;
+    mouseX = x / squareEdgeLengh -0.5;
+    mouseY = y / squareEdgeLengh -0.5;
+    drawBoard();
+}
+
+function selectCanvas (event, isDrag) {
+    let x = event.clientX - canvas.offsetLeft;
+    let y = event.clientY - canvas.offsetTop;
     let file = Math.floor(x / squareEdgeLengh);
     let rank = Math.floor(y / squareEdgeLengh);
     let xInSquare = x / squareEdgeLengh - file;
     let yInSquare = y / squareEdgeLengh - rank;
+    if (isDrag)
+        draggedPiece = position[rank][file];
+    else
+        draggedPiece = undefined;
     selectSquare(file, rank, xInSquare, yInSquare);
+    
 }
 
 function selectSquare (file, rank, xInSquare, yInSquare) {
@@ -41,12 +58,14 @@ function selectSquare (file, rank, xInSquare, yInSquare) {
             });
             return ballMove;
         });
-        if (kickMove)
+        if (kickMove && !(ballMove.bx == ballMove.sx && ballMove.by == ballMove.sy))
             positionPlayMove(position, ballMove);
     }
     if (move) {
-        if (move.ballMoves)
+        if (move.ballMoves) {
             possibleMoves = move.ballMoves;
+            draggedPiece = ball;
+        }
         else if (move.promotions)
             possibleMoves = move.promotions;
         else
