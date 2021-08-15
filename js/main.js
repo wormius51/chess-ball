@@ -12,16 +12,23 @@ var possibleMoves = [];
 function selectCanvas (x, y) {
     let file = Math.floor(x / squareEdgeLengh);
     let rank = Math.floor(y / squareEdgeLengh);
-    selectSquare(file, rank);
+    let xInSquare = x / squareEdgeLengh - file;
+    let yInSquare = y / squareEdgeLengh - rank;
+    selectSquare(file, rank, xInSquare, yInSquare);
 }
 
-function selectSquare (file, rank) {
+function selectSquare (file, rank, xInSquare, yInSquare) {
     let move = possibleMoves.find(m => {
-        return (m.x == file && m.y == rank) || 
-        (m.bx == file && m.by == rank);
+        return ((m.x == file && m.y == rank) || 
+        (m.bx == file && m.by == rank)) &&
+        (m.xInSquare == undefined || (
+        m.xInSquare <= xInSquare &&
+        m.xInSquare > xInSquare - 0.5 &&
+        m.yInSquare <= yInSquare &&
+        m.yInSquare > yInSquare - 0.5))
     });
     if (move) {
-        if (!move.ballMoves)
+        if (!move.ballMoves && !move.promotions)
             positionPlayMove(position, move);
     }
     else {
@@ -40,6 +47,8 @@ function selectSquare (file, rank) {
     if (move) {
         if (move.ballMoves)
             possibleMoves = move.ballMoves;
+        else if (move.promotions)
+            possibleMoves = move.promotions;
         else
             possibleMoves = [];
     } else {

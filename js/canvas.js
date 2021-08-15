@@ -27,9 +27,11 @@ function drawSquares () {
     }
 }
 
-function drawPiece (piece, file, rank) {
+function drawPiece (piece, file, rank, size) {
     if (!piece)
         return;
+    if (!size)
+        size = 1;
     let pieceX = 0;
     let pieceY = (piece.team == "white") ? 0 : 1;
     switch (piece.type) {
@@ -52,12 +54,12 @@ function drawPiece (piece, file, rank) {
             pieceX = 5;
             break;
         case "ball":
-            context.drawImage(ballImage, file * squareEdgeLengh, rank * squareEdgeLengh, squareEdgeLengh, squareEdgeLengh);
+            context.drawImage(ballImage, file * squareEdgeLengh, rank * squareEdgeLengh, squareEdgeLengh * size, squareEdgeLengh * size);
             return;
         default:
             return;
     }
-    context.drawImage(piecesImage, pieceX * pieceEdgeLength, pieceY * pieceEdgeLength, pieceEdgeLength, pieceEdgeLength, file * squareEdgeLengh, rank * squareEdgeLengh, squareEdgeLengh, squareEdgeLengh);
+    context.drawImage(piecesImage, pieceX * pieceEdgeLength, pieceY * pieceEdgeLength, pieceEdgeLength, pieceEdgeLength, file * squareEdgeLengh, rank * squareEdgeLengh, squareEdgeLengh * size, squareEdgeLengh * size);
 }
 
 function drawPieces () {
@@ -77,6 +79,10 @@ function drawMoveOption (file, rank, color) {
     context.fill();
 }
 
+function drawPromotionOptions (x, y, type, team) {
+    drawPiece(Piece(team, type), x, y, 0.5);
+}
+
 function drawMoveOptions () {
     possibleMoves.forEach(move => {
         if (move.ballMoves) {
@@ -84,11 +90,14 @@ function drawMoveOptions () {
                 drawMoveOption(ballMove.bx, ballMove.by, ballMoveColor);
             });
         }
+        if (move.promotion) {
+            drawPromotionOptions(move.x + move.xInSquare, move.y + move.yInSquare, move.promotion, position.turn);
+        }
     });
     possibleMoves.forEach(move => {
         if (move.bx != undefined)
             drawMoveOption(move.bx, move.by, ballMoveColor);
-        else
+        else if (move.promotion == undefined)
             drawMoveOption(move.x, move.y);
     });
 }

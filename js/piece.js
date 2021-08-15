@@ -253,13 +253,16 @@ const pieceMoves = {
         if (board[y][x].team == "white" ? y == 1 : y == board.length - 2) {
             moves.forEach(move => {
                 let promotions = [];
-                promotions.push({ x: move.x, y: move.y, promotion: "queen" });
-                promotions.push({ x: move.x, y: move.y, promotion: "rook" });
-                promotions.push({ x: move.x, y: move.y, promotion: "knight" });
-                promotions.push({ x: move.x, y: move.y, promotion: "bishop" });
-                move.promotion = promotions;
+                promotions.push({ x: move.x, y: move.y, promotion: "queen", xInSquare: 0, yInSquare: 0 });
+                promotions.push({ x: move.x, y: move.y, promotion: "rook", xInSquare: 0.5, yInSquare: 0 });
+                promotions.push({ x: move.x, y: move.y, promotion: "knight", xInSquare: 0, yInSquare: 0.5 });
+                promotions.push({ x: move.x, y: move.y, promotion: "bishop", xInSquare: 0.5, yInSquare: 0.5 });
+                move.promotions = promotions;
+                promotions.forEach(p => {
+                    p.sx = x;
+                    p.sy = y;
+                });
             });
-            return promotions;
         }
         return moves;
     }

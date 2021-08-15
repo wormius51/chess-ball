@@ -97,6 +97,7 @@ function positionAfterMove (position, move) {
 }
 
 function positionPlayMove (position, move) {
+    
     let piece = position[move.sy][move.sx];
     position[move.sy][move.sx] = undefined;
     if (move.bx != undefined) {
@@ -107,12 +108,10 @@ function positionPlayMove (position, move) {
     
     if (piece.type == "pawn") {
         let colorSign = (piece.team == "white") ? 1 : -1;
-        if ((move.sy - move.y) * colorSign > 1)
-            position.enpassant = {x: move.x, y: move.y + colorSign};
-        if (position.enpassant && position.enpassant.x == move.x && position.enpassant.y == move.y) {
+        if (position.enpassant && position.enpassant.x == move.x && position.enpassant.y == move.y)
             position[move.y + colorSign][move.x] = undefined;
-            position.enpassant = undefined;
-        }
+        if ((move.sy - move.y) * colorSign > 1)
+            position.enpassant = {x: move.x, y: move.y + colorSign, team: piece.team};
         if (move.promotion)
             piece.type = move.promotion;
     } else if (piece.type == "rook") {
@@ -134,5 +133,7 @@ function positionPlayMove (position, move) {
         }
     }
     piece.firstMove = false;
+    if (position.enpassant && position.turn != position.enpassant.team)
+        position.enpassant = undefined;
     position.turn = (position.turn == "white") ? "black" : "white";
 }
