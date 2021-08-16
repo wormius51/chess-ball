@@ -4,9 +4,8 @@ function setStartingPosition () {
    position = copyPosition(startPosition);
    position.turn = "white";
    position.castling = {white: {short: true, long: true}, black: {short: true, long: true}};
+   position.ball = position[3][4];
 }
-
-const ball = Piece("nan", "ball");
 
 const emptyPosition = [
     [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined],
@@ -23,7 +22,7 @@ const startPosition = [
     [Piece("black", "rook"), Piece("black", "knight"), Piece("black", "bishop"), Piece("black", "queen"), Piece("black", "king"), Piece("black", "bishop"), Piece("black", "knight"), Piece("black", "rook")],
     [Piece("black", "pawn"), Piece("black", "pawn"), Piece("black", "pawn"), Piece("black", "pawn"), Piece("black", "pawn"), Piece("black", "pawn"), Piece("black", "pawn"), Piece("black", "pawn")],
     [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined],
-    [undefined, undefined, undefined, undefined, ball, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined, Piece("nan", "ball"), undefined, undefined, undefined],
     [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined],
     [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined],
     [Piece("white", "pawn"), Piece("white", "pawn"), Piece("white", "pawn"), Piece("white", "pawn"), Piece("white", "pawn"), Piece("white", "pawn"), Piece("white", "pawn"), Piece("white", "pawn")],
@@ -35,7 +34,10 @@ function copyPosition(position) {
     for (let y = 0; y < position.length; y++) {
         newPosition.push([]);
         for (let x = 0; x < position[y].length; x++) {
-            newPosition[y].push(copyPiece(position[y][x]));
+            let piece = copyPiece(position[y][x]);
+            newPosition[y].push(piece);
+            if (piece && piece.type == "ball")
+                newPosition.ball = piece;
         }
     }
     newPosition.turn = position.turn;
@@ -100,10 +102,8 @@ function positionPlayMove (position, move) {
     
     let piece = position[move.sy][move.sx];
     position[move.sy][move.sx] = undefined;
-    if (move.bx != undefined) {
-        position[move.by][move.bx] = ball;
-        ball.firstMove = false;
-    }
+    if (move.bx != undefined)
+        position[move.by][move.bx] = position.ball;
     position[move.y][move.x] = piece;
     
     if (piece.type == "pawn") {

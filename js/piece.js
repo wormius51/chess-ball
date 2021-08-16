@@ -236,7 +236,7 @@ const pieceMoves = {
         let moves = [];
         if (!ignoreAttacks && !board[y + dir][x]) {
             moves.push({ x: x, y: y + dir });
-            if (((board[y][x].team == board.turn) ? board[y][x].firstMove : ball.firstMove) && !board[y + dir * 2][x])
+            if (((board[y][x].team == board.turn) ? board[y][x].firstMove : board.ball.firstMove) && !board[y + dir * 2][x])
                 moves.push({ x: x, y: y + dir * 2 });
         }
         if (x < board[y + dir].length - 1) {

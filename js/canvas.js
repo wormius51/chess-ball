@@ -14,6 +14,7 @@ let moveOptionColor = "#10fd30d3";
 let ballMoveColor = "grey";
 
 let draggedPiece = undefined;
+let kickingPiece = undefined;
 let mouseX = 0;
 let mouseY = 0;
 
@@ -68,9 +69,17 @@ function drawPiece (piece, file, rank, size) {
 
 function drawPieces () {
     for (let file = 0; file < boardWidth; file++)
-        for (let rank = 0; rank < boardHeight; rank++)
-            if (position[rank] && position[rank][file] != draggedPiece)
-                drawPiece(position[rank][file], file, rank);
+        for (let rank = 0; rank < boardHeight; rank++) {
+            if (!position[rank] || !position[rank][file])
+                continue;
+            if (position[rank][file] != draggedPiece) {
+                if (position[rank][file] != kickingPiece)
+                    drawPiece(position[rank][file], file, rank);
+            } else if (position[rank][file] == position.ball) {
+                drawPiece(kickingPiece, file, rank);
+            }
+            
+        }
 }
 
 function drawMoveOption (file, rank, color) {

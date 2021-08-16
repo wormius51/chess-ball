@@ -26,17 +26,18 @@ function selectCanvas (event, isDrag) {
     let rank = Math.floor(y / squareEdgeLengh);
     let xInSquare = x / squareEdgeLengh - file;
     let yInSquare = y / squareEdgeLengh - rank;
-    if (isDrag)
+    selectSquare(file, rank, xInSquare, yInSquare, isDrag);
+}
+
+function selectSquare (file, rank, xInSquare, yInSquare, isDrag) {
+    if (position[rank] && draggedPiece == position.ball && position[rank][file] == position.ball)
+        return;
+    if (isDrag && position[rank])
         draggedPiece = position[rank][file];
     else
         draggedPiece = undefined;
-    selectSquare(file, rank, xInSquare, yInSquare);
-    
-}
-
-function selectSquare (file, rank, xInSquare, yInSquare) {
     let move = possibleMoves.find(m => {
-        return ((m.x == file && m.y == rank) || 
+        return ((m.bx == undefined && m.x == file && m.y == rank) || 
         (m.bx == file && m.by == rank)) &&
         (m.xInSquare == undefined || (
         m.xInSquare <= xInSquare &&
@@ -45,8 +46,10 @@ function selectSquare (file, rank, xInSquare, yInSquare) {
         m.yInSquare > yInSquare - 0.5))
     });
     if (move) {
-        if (!move.ballMoves && !move.promotions)
+        if (!move.ballMoves && !move.promotions) {
             positionPlayMove(position, move);
+            kickingPiece = undefined;
+        }
     }
     else {
         let ballMove = null;
@@ -58,19 +61,25 @@ function selectSquare (file, rank, xInSquare, yInSquare) {
             });
             return ballMove;
         });
-        if (kickMove && !(ballMove.bx == ballMove.sx && ballMove.by == ballMove.sy))
+        if (kickMove && !(ballMove.bx == ballMove.sx && ballMove.by == ballMove.sy)) {
             positionPlayMove(position, ballMove);
+            kickingPiece = undefined;
+        }
     }
     if (move) {
+        if (move.bx != undefined)
+            position.ball.firstMove = false;
         if (move.ballMoves) {
             possibleMoves = move.ballMoves;
-            draggedPiece = ball;
+            draggedPiece = position.ball;
+            kickingPiece = position[move.sy][move.sx];
         }
         else if (move.promotions)
             possibleMoves = move.promotions;
         else
             possibleMoves = [];
     } else {
+        kickingPiece = undefined;
         possibleMoves = getMovesOfPiece(position, file, rank);
     }
     drawBoard();
