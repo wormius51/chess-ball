@@ -1,6 +1,8 @@
 const canvas = document.getElementById("boardCanvas");
 const context = canvas.getContext("2d");
 
+let flippedBoard = false;
+
 const boardHeight = 8;
 const boardWidth = 8;
 
@@ -37,6 +39,10 @@ function drawPiece (piece, file, rank, size) {
         return;
     if (!size)
         size = 1;
+    if (flippedBoard) {
+        file = boardWidth - 1 - file;
+        rank = boardHeight - 1 - rank;
+    }
     let pieceX = 0;
     let pieceY = (piece.team == "white") ? 0 : 1;
     switch (piece.type) {
@@ -83,6 +89,10 @@ function drawPieces () {
 }
 
 function drawMoveOption (file, rank, color) {
+    if (flippedBoard) {
+        file = boardWidth - 1 - file;
+        rank = boardHeight - 1 - rank;
+    }
     context.fillStyle = color? color : moveOptionColor;
     context.beginPath();
     let radius = moveOptionRadius * squareEdgeLengh / 2;
@@ -106,7 +116,13 @@ function drawMoveOptions () {
             });
         }
         if (move.promotion) {
-            drawPromotionOptions(move.x + move.xInSquare, move.y + move.yInSquare, move.promotion, position.turn);
+            let xd = move.xInSquare;
+            let yd = move.yInSquare;
+            if (flippedBoard) {
+                xd = -xd;
+                yd = -yd;
+            }
+            drawPromotionOptions(move.x + xd, move.y + yd, move.promotion, position.turn);
         }
     });
     possibleMoves.forEach(move => {
@@ -118,7 +134,13 @@ function drawMoveOptions () {
 }
 
 function drawDraggedPiece () {
-    drawPiece(draggedPiece, mouseX, mouseY);
+    let file = mouseX;
+    let rank = mouseY;
+    if (flippedBoard) {
+        file = boardWidth - 1 - file;
+        rank = boardHeight - 1 - rank;
+    }
+    drawPiece(draggedPiece, file, rank);
 }
 
 function drawBoard () {
@@ -128,4 +150,9 @@ function drawBoard () {
     drawMoveOptions();
     if (draggedPiece)
         drawDraggedPiece();
+}
+
+function flipBoard () {
+    flippedBoard = !flippedBoard;
+    drawBoard();
 }

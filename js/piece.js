@@ -30,7 +30,7 @@ function copyPiece (piece) {
  * @param {Number} y 
  */
 function getMovesOfPiece(board, x, y, ignoreAttacks) {
-    if (!board[y][x]) return [];
+    if (!board[y] || !board[y][x]) return [];
     if (!pieceMoves[board[y][x].type]) return [];
     if (!ignoreAttacks && board[y][x].team != position.turn) return [];
     let moves = pieceMoves[board[y][x].type](board, x, y, ignoreAttacks);
@@ -234,7 +234,7 @@ const pieceMoves = {
     pawn: (board, x, y, ignoreAttacks) => {
         let dir = board[y][x].team == "white" ? -1 : 1;
         let moves = [];
-        if (!ignoreAttacks && !board[y + dir][x]) {
+        if (!ignoreAttacks && board[y + dir] && !board[y + dir][x]) {
             moves.push({ x: x, y: y + dir });
             if (((board[y][x].team == board.turn) ? board[y][x].firstMove : board.ball.firstMove) && !board[y + dir * 2][x])
                 moves.push({ x: x, y: y + dir * 2 });

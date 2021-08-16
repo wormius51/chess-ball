@@ -9,6 +9,9 @@ canvas.addEventListener('mousedown', event => {
 });
 canvas.addEventListener('mousemove', setMouseXY);
 
+const flipButton = document.getElementById("flipBoardButton");
+flipButton.addEventListener('click', flipBoard);
+
 var possibleMoves = [];
 
 function setMouseXY (event) {
@@ -30,6 +33,10 @@ function selectCanvas (event, isDrag) {
 }
 
 function selectSquare (file, rank, xInSquare, yInSquare, isDrag) {
+    if (flippedBoard) {
+        file = boardWidth - 1 - file;
+        rank = boardHeight - 1 - rank;
+    }
     if (position[rank] && draggedPiece == position.ball && position[rank][file] == position.ball)
         return;
     if (isDrag && position[rank])
