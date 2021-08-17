@@ -90,5 +90,5 @@ function selectSquare (file, rank, xInSquare, yInSquare, isDrag) {
         possibleMoves = getMovesOfPiece(position, file, rank);
     }
     drawBoard();
-    
+    updateInfo();
 }

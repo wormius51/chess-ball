@@ -137,3 +137,110 @@ function positionPlayMove (position, move) {
         position.enpassant = undefined;
     position.turn = (position.turn == "white") ? "black" : "white";
 }
+
+
+/**
+ * Is this team in check
+ */
+function isCheck(position, team) {
+    for (let y = 0; y < position.length; y++) {
+        for (let x = 0; x < position[y].length; x++) {
+            if (!position[y][x] || position[y][x].team == team) continue;
+            let moves = getMovesOfPiece(position, x, y, true);
+            for (let i = 0; i < moves.length; i++) {
+                let move = moves[i];
+                if (position[move.y][move.x]) {
+                    if (position[move.y][move.x].type == "king" && position[move.y][move.x].team == team) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+function copyMove (move, copyTo) {
+    if (!copyTo) return;
+    copyTo.x = move.x;
+    copyTo.y = move.y;
+    copyTo.sx = move.sx;
+    copyTo.sy = move.sy;
+    copyTo.bx = move.bx;
+    copyTo.by = move.by;
+}
+
+function isSavingMove (position, team, move) {
+    let pos = positionAfterMove(position, move)
+    return !isCheck(pos, team) || isGoal(pos, team);
+}
+
+/**
+ * Is this team mated
+ */
+function isMate (position, team, savingMove) {
+    if (!isCheck(position, team)) return false;
+    for (let y = 0; y < position.length; y++) {
+        for (let x = 0; x < position[y].length; x++) {
+            if (!position[y][x] || position[y][x].team != team) continue;
+            let moves = getMovesOfPiece(position, x, y);
+            for (let i = 0; i < moves.length; i++) {
+                let move = moves[i];
+                if (move.ballMoves) {
+                    for (let i = 0; i < move.ballMoves.length; i++) {
+                        if (isSavingMove(position, team, move.ballMoves[i])) {
+                            copyMove(move.ballMoves[i], savingMove);
+                            return false;
+                        }
+                    }
+                } else if (move.promotions) {
+                    for (let i = 0; i < move.promotions.length; i++) {
+                        if (isSavingMove(position, team, move.promotions[i])) {
+                            copyMove(move.promotions[i], savingMove);
+                            return false;
+                        }
+                    }
+                } else if (isSavingMove(position, team, move)) {
+                    copyMove(move, savingMove);
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+function isStalemate (position) {
+    if (isMate(position, position.turn) || isGoal(position, "white") || isGoal(position, "black"))
+        return false;
+    for (let y = 0; y < position.length; y++) {
+        for (let x = 0; x < position[y].length; x++) {
+            let moves = getMovesOfPiece(position, x, y);
+            if (moves.length > 0)
+                return false;
+        }
+    }
+    return true;
+}
+
+function isGoal (position, team) {
+    let goalRank = (team == "white") ? 0 : (position.length - 1);
+    for (let file = 0; file < position[goalRank].length; file++) {
+        if (position[goalRank][file] && position[goalRank][file].type == "ball")
+            return true;
+    }
+    return false;
+}
+
+function positionResult (position) {
+    if (isGoal(position, "white"))
+        return "goal white";
+    if (isGoal(position, "black"))
+        return "goal black";
+    let attackingTeam = position.turn == "white" ? "black" : "white";
+    if (isMate(position, position.turn))
+        return "mate " + attackingTeam;
+    if (isStalemate(position))
+        return "stalemate";
+    return "playing";
+}
