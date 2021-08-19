@@ -168,6 +168,7 @@ function copyMove (move, copyTo) {
     copyTo.sy = move.sy;
     copyTo.bx = move.bx;
     copyTo.by = move.by;
+    copyTo.promotion = move.promotion;
 }
 
 function isSavingMove (position, team, move) {

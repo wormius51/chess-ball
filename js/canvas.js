@@ -8,6 +8,7 @@ const boardWidth = 8;
 
 let squareEdgeLengh = 70;
 const pieceEdgeLength = 320;
+const pieceOutlineSize = 0.1;
 const moveOptionRadius = 0.4;
 
 let lightSquareColor = "rgb(200, 200, 255)";
@@ -45,6 +46,7 @@ function drawPiece (piece, file, rank, size) {
     }
     let pieceX = 0;
     let pieceY = (piece.team == "white") ? 0 : 1;
+    
     switch (piece.type) {
         case "king":
             pieceX = 0;
@@ -70,7 +72,19 @@ function drawPiece (piece, file, rank, size) {
         default:
             return;
     }
+    if (pieceY == 1)
+        drawOutline(pieceX, pieceY, file, rank, size);
+    
     context.drawImage(piecesImage, pieceX * pieceEdgeLength, pieceY * pieceEdgeLength, pieceEdgeLength, pieceEdgeLength, file * squareEdgeLengh, rank * squareEdgeLengh, squareEdgeLengh * size, squareEdgeLengh * size);
+}
+
+function drawOutline (pieceX, pieceY, file, rank, size) {
+    context.globalCompositeOperation = "xor";
+    let outlineEngeLength = squareEdgeLengh * (1 + pieceOutlineSize);
+    dx = (squareEdgeLengh - outlineEngeLength) * 0.5;
+    dy = (squareEdgeLengh - outlineEngeLength) * 0.5;
+    context.drawImage(piecesImage, pieceX * pieceEdgeLength, pieceY * pieceEdgeLength, pieceEdgeLength, pieceEdgeLength, file * squareEdgeLengh + dx, rank * squareEdgeLengh + dy, outlineEngeLength * size, outlineEngeLength * size);
+    context.globalCompositeOperation = "source-over";
 }
 
 function drawPieces () {
@@ -142,10 +156,13 @@ function drawDraggedPiece () {
     }
     drawPiece(draggedPiece, file, rank);
 }
-
+function drawClydeBackground () {
+    context.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+}
 function drawBoard () {
     setBoardCanvasSize();
-    drawSquares();
+    //drawSquares();
+    drawClydeBackground();
     drawPieces();
     drawMoveOptions();
     if (draggedPiece)

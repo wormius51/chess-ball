@@ -14,6 +14,8 @@ flipButton.addEventListener('click', flipBoard);
 
 var possibleMoves = [];
 
+var myColor = "both";
+
 function setMouseXY (event) {
     let x = event.clientX - canvas.offsetLeft;
     let y = event.clientY - canvas.offsetTop;
@@ -23,6 +25,8 @@ function setMouseXY (event) {
 }
 
 function selectCanvas (event, isDrag) {
+    if (myColor != "both" && myColor != position.turn)
+        return;
     let x = event.clientX - canvas.offsetLeft;
     let y = event.clientY - canvas.offsetTop;
     let file = Math.floor(x / squareEdgeLengh);
